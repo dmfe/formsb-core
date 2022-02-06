@@ -28,6 +28,7 @@
 
         <!-- Other 3rd-Parties -->
         <lombok.version>1.18.12</lombok.version>
+        <docx4j-ImportXHTML.version>8.3.2</docx4j-ImportXHTML.version>
 
         <main.class>com.formsb.FormsbApp</main.class>
     </properties>
@@ -43,6 +44,12 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.docx4j</groupId>
+            <artifactId>docx4j-ImportXHTML</artifactId>
+            <version>${docx4j-ImportXHTML.version}</version>
         </dependency>
     </dependencies>
 
