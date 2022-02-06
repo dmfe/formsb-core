@@ -1,0 +1,8 @@
+spring:
+  jackson:
+    mapper:
+      ACCEPT_CASE_INSENSITIVE_ENUMS: true
+
+base:
+  uri: 'http://localhost:8080'
+
