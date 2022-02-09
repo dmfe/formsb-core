@@ -15,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.formsb.dtos.ConversionData;
 import ru.formsb.dtos.request.DocType;
 import ru.formsb.dtos.request.ExportBody;
+import ru.formsb.dtos.request.SmpData;
 import ru.formsb.services.ConverterService;
+import ru.formsb.services.impl.DocxService;
 import ru.formsb.utils.FileUtils;
 
 @RestController
@@ -23,11 +25,7 @@ import ru.formsb.utils.FileUtils;
 public class ConverterController {
 
     private final ConverterService converterService;
-
-    @GetMapping("/test")
-    public String test() {
-        return "{\"message\": \"Hello, world!\"}";
-    }
+    private final DocxService docxService;
 
     @PostMapping(value = "/convert", produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
@@ -42,11 +40,27 @@ public class ConverterController {
         ConversionData conversion = converterService.convertHtmlToDocument
                 (body.getHtml(), body.getFileType(), body.getBank());
 
-        response.addHeader("Content-disposition", "attachment;filename=" + conversion.getName());
-        response.setContentType(conversion.getContentType());
-        response.setContentLength(conversion.getLength());
+        prepareResponseWithAttachment(response, conversion);
 
-        conversion.getStream().writeTo(response.getOutputStream());
+        response.flushBuffer();
+    }
+
+    @GetMapping("/get-docx")
+    public void getDocx(HttpServletResponse response) throws Docx4JException, IOException {
+        ConversionData conversion = docxService.getDocx();
+
+        prepareResponseWithAttachment(response, conversion);
+
+        response.flushBuffer();
+    }
+
+    @PostMapping("/questionnaire")
+    public void generateQuestionnaire(HttpServletResponse response, @RequestBody SmpData data)
+            throws Docx4JException, IOException, JAXBException {
+
+        ConversionData conversion = docxService.generateQuestionnaire(data);
+
+        prepareResponseWithAttachment(response, conversion);
 
         response.flushBuffer();
     }
@@ -57,5 +71,13 @@ public class ConverterController {
         }
 
         return DocType.fromStr(FileUtils.getFileExtension(file.getOriginalFilename()));
+    }
+
+    private void prepareResponseWithAttachment(HttpServletResponse response, ConversionData data) throws IOException {
+        response.addHeader("Content-disposition", "attachment;filename=" + data.getName());
+        response.setContentType(data.getContentType());
+        response.setContentLength(data.getLength());
+
+        data.getStream().writeTo(response.getOutputStream());
     }
 }

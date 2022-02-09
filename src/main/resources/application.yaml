@@ -6,3 +6,6 @@ spring:
 base:
   uri: 'http://localhost:8080'
 
+templates:
+  docx: 'smp:*.docx'
+
